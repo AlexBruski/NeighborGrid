@@ -44,6 +44,7 @@
 
  http://www.arduino.cc/en/Tutorial/LiquidCrystal
  */
+ //test
 //test
 // include the library code:
 const int SENSOR_PIN = P1_5;
