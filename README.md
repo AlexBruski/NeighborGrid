@@ -1,3 +1,3 @@
 # NeighborGrid
 
-Code for NeighbroGrid Capstone Project
+Code for NeighborGrid Capstone Project
