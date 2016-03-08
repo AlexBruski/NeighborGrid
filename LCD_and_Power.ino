@@ -146,13 +146,21 @@ void loop() {
      lcd.setCursor(5,0);
      lcd.print("mA");
      delay(1000);
+
+    //pricing section based on availability
+  
     
     // delay(hour)... put into sleep?
     // starts to reset array after a day of values. 
     if (i == 24)
      {
+      //average those values into one value?
+
       i = 0;
      }
+
+
+    1++;
      
     /*
     String x=String(price);
