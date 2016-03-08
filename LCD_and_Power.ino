@@ -44,7 +44,6 @@
 
  http://www.arduino.cc/en/Tutorial/LiquidCrystal
  */
- //test
 //test
 // include the library code:
 const int SENSOR_PIN = P1_5;
@@ -66,14 +65,17 @@ const int RS = 10;       // Shunt resistor value (in ohms)
 //Values for each sensor
 float current0;       // Calculated current value
 float power0;
+
 float current1;       
 float power1;
+
 float current2;       
 float power2;
 
 //array for storing last values, increment up to 24 (for a days of values)
+//one hours values for three sensors should be averaged into one array to save space
 int i = 0;
-int powerArray0[24] = { };
+int powerArray[24] = { };
 
 // initialize the library with the numbers of the interface pins
  
@@ -125,12 +127,6 @@ void loop() {
     Serial.print(current0, 3);
     Serial.print("A ");
     
-    //set present power value to the array
-    powerArray0[i] = power0;
-    Serial.print("Power0: ");
-    Serial.print(powerArray0[i], 3);
-    Serial.println("W");
-    
     //current and power for sensor 1
     current1 = 1000 * sensorVal1 / (RL * RS);
     power1 = current1 * sensorVal1;
@@ -138,6 +134,13 @@ void loop() {
     //current and power for sensor 2
     current2 = 1000* sensorVal2 / (RL * RS);
     power2 = current2 * sensorVal2;
+
+    //set present power value to the array
+    //average of power from each sensor 
+    powerArray[i] = .333 * (power0 + power1 + power2);
+    Serial.print("Power0: ");
+    Serial.print(powerArray[i], 3);
+    Serial.println("W");
    
      lcd.print(current0);
      lcd.setCursor(5,0);
