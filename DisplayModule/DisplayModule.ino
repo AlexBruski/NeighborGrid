@@ -26,23 +26,32 @@
 
 #include <LiquidCrystal.h>
 
-const int POWER_SENSOR_PIN = P1_0;
-const int POWER_SENSOR_PIN = P1_1;
-const int POWER_SENSOR_PIN = P1_2;
-const int POWER_SENSOR_PIN = P1_3;
+//headers from power to read data into display
+//#include <PowerSensor.h>
+
+//following should be included in header (internal)
+const int POWER_SENSOR_PIN0 = P1_5; //solar panel
+const int POWER_SENSOR_PIN1 = P1_6; //battery
+const int POWER_SENSOR_PIN2 = P1_7; //usage
 const int CONNECTION_PIN = P1_4;
-const int POWER_SENSOR_PIN = P1_5;
+
+//outside power, input from powersensor.h
+float powerBus;
 
 // initialize the library with the numbers of the interface pins
 LiquidCrystal lcd(P2_0, P2_1, P2_2, P2_3, P2_4, P2_5);
   int size = 0; // how many houses are in the network
   float price=0.10;
-  float credit=0.10;
+
+  //changed from "credit" as that is a section name
+  float credit_owed=0.10;
   int wattage = 0;
   int usage = 0;
   int stat = 1;
   int start=65;
   float sensorValue; 
+  float sensorHome;
+  float sensorOverall;
   float current;  
   float voltageRef=3.7;
 
@@ -116,21 +125,30 @@ void loop() {
      else if(stat == 0) {
       start = 78; 
     }
-    */ 
+    */
+
+    //turn display off / lower when not in use? 
 }
 
 int powerPrice(){
-    //get value from sensor  
-    sensorValue = analogRead(POWER_SENSOR_PIN);
+    //get value from internal  
+    //read other values to get sum
+
+    //make array for each homes power, then add in every other one except for itself to get overall power?
+
+    sensorValue = analogRead(POWER_SENSOR_PIN0);
+    sensorHome = sensorValue + analogRead(POWER_SENSOR_PIN1); //sum of internal home power
+    sensorOverall = sensorHome + powerBus; //adding in the power from the bus to give total availability 
+
     lcd.setCursor(0,0);
     lcd.clear();
     lcd.setCursor(0, 0);
     
-    //calibrate current value
-    sensorValue = (sensorValue * voltageRef) / (1023);
-    current = 1000*sensorValue / (10 * 9.99);
+    //calibrate current value in home
+    sensorHome = (sensorHome * voltageRef) / (1023);
+    current = 1000 * sensorHome / (10 * 9.99);
     /* 
-    Write algorithm to determine to price of power in the network
+    Write algorithm to determine the price of power in the network
     depending on how much power is available at the current time
     
     Variables:
@@ -138,15 +156,15 @@ int powerPrice(){
     2) past prices
     3) past systemPower 
         this is where the database comes in
-    */
     
-    // display curent(test to make sure measurement is accurate)
-    //lcd.print(current);
+    //display curent(test to make sure measurement is accurate)
+    lcd.print(current);
     
     //print price after algorithm has been calculated
-    //lcd.print(price)
+    lcd.print(price);
     
     // return networkPowerPrice
+    */
     delay(1000);
 }
 
@@ -163,7 +181,7 @@ int credit(String userType){
   }
   if(userType == "consumer"){
     /* write code that takes an input on how much credit a consumer is
-    willing to purshuse for power. Depending on how much credit they input and the price
+    willing to pay for power. Depending on how much credit they input and the price
     of power at a given time, they will receive a certain amount of 
     kilowatt hours to use in their home.
     
@@ -182,6 +200,8 @@ int systemPower(){
   connected in the network. Then sum all the power measurements 
   from each of these generators to find the total amount of power
   in the NeighborGrid network
+
+  //wrote in powerPrice section - what about an array? 
   
     lcd.setCursor(1, 1);
     lcd.print(String(sysPow));
@@ -196,10 +216,10 @@ void homePower(String userType) {
   if(userType == "producer"){
     /* code to calculate power that is stored in producer's battery
     
-     sensorValue = analogRead(POWER_SENSOR_PIN);
-     sensorValue = (sensorValue * voltageRef) / (1023);
-     current = 1000*sensorValue / (10 * 9.99);
-     */
+    sensorValue = analogRead(POWER_SENSOR_PIN0);
+    sensorHome = (sensorHome * voltageRef) / (1023);
+    current = 1000 * sensorHome / (10 * 9.99);
+    
   }
   if(userType == "consumer"){
     /* take the input of the consumers credits and depending on the price
