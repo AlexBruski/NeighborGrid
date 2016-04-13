@@ -23,6 +23,7 @@
  16 - BL-             GND
  =================================
  */
+#include <stdbool.h>
 
 #include <LiquidCrystal.h>
 
@@ -50,6 +51,7 @@ LiquidCrystal lcd(P2_0, P2_1, P2_2, P2_3, P2_4, P2_5);
 
   //changed line below from "credit" as that is a section name below
   float credit_owed=0.10;
+  float credit_have = 100;
   int wattage = 0;
   int usage = 0;
   int stat = 1;
@@ -73,31 +75,9 @@ void setup() {
 
 void loop() {
   
-  powerPrice();
   connection();
-
-  //error code checking
-    //not sure about this if, if "on" add to credit owed...
-    if (totalUsagePower[i] >= totalUsagePower[i-1]){
-    	//increase credit amount, 10 cents is just a number. Need to mult by a factor for price / watt
-    	credit_owed = credit_owed + totalUsagePower* 0.10;
-
-    //reset Usage after "paid"
-    if (credit == credit_owed){
-    	totalUsagePower = 0;
-    	credit = 0;
-    	}
-
-    //if less credit then what they need to pay, cut off
-    else if (credit <= credit_owed){ 
-    	connection = 0;
-    	}
-
-    i++;
-    if (i == 24){
-    	i = 0;
-    }
-}
+  credit();
+  powerPrice();
   
 
     /*
@@ -169,7 +149,33 @@ int powerPrice(){
 
     //make array for each homes power, then add in every other one except for itself to get overall power?
 
-    sensorHome = analogRead(POWER_SENSOR_PIN0); + analogRead(POWER_SENSOR_PIN1); //sum of internal home power
+    /*for reference, delete after
+		const int POWER_SENSOR_PIN0 = P1_5; //solar panel
+		const int POWER_SENSOR_PIN1 = P1_6; //battery
+		const int POWER_SENSOR_PIN2 = P1_7; //usage
+		const int CONNECTION_PIN = P1_4; */
+
+
+	//solar and battery connected, boolean vars t/f
+	boolean solar_connect = digitalRead(POWER_SENSOR_PIN0);
+    if (solar_connect == true ){
+    	//total_solar = total_solar + 1;
+    	int valueSolar = analogRead(POWER_SENSOR_PIN0);
+    	//lcd.print("Solar Panel Connected")
+
+    }
+
+    boolean battery_connect = digitalRead(POWER_SENSOR_PIN1);
+    if (battery_connect == true ){
+    	//total_batteries = total_batteries + 1;
+    	int valueBattery = analogRead(POWER_SENSOR_PIN1);
+    	//lcd.print("Battery Connected")
+    }
+
+    //what is flowing for the "usage"
+    powerBus = POWER_SENSOR_PIN2;
+
+    sensorHome = valueBattery + valueSolar; //sum of internal home power
     sensorOverall = sensorHome + powerBus; //adding in the power from the bus to give total availability 
 
     lcd.setCursor(0,0);
@@ -179,7 +185,6 @@ int powerPrice(){
     //calibrate current value in home
     sensorHome = (sensorHome * voltageRef) / (1023);
     current = 1000 * sensorHome / (10 * 9.99);
-
 
     /* 
     Write algorithm to determine the price of power in the network
@@ -206,9 +211,29 @@ int credit(String userType){
   if(userType == "producer"){
     // write code to calculate how much power the producer has given
     // to other neighbors in the network.
-    
-    int totalHomePower = POWER_SENSOR_PIN0 + POWER_SENSOR_PIN1;
-    int totalUsagePower = POWER_SENSOR_PIN2;
+
+//error code checking
+    //not sure about this if, if "on" add to credit owed...
+    if (totalUsagePower[i] >= totalUsagePower[i-1]){
+    	//increase credit amount, 10 cents is just a number. Need to mult by a factor for price / watt
+    	credit_owed = credit_owed + totalUsagePower* 0.10;
+
+    //reset Usage after "paid"
+    if (credit_have == credit_owed){
+    	totalUsagePower = 0;
+    	credit = 0;
+    	}
+
+    //if less credit then what they need to pay, cut off
+    else if (credit_have <= credit_owed){ 
+    	connection = 0;
+    	}
+
+    i++;
+    if (i == 24){ //for hours?
+    	i = 0;
+    }
+}
 
     /*
     lcd.setCursor(8, 0);
@@ -247,26 +272,12 @@ int systemPower(){
     lcd.print("kW/h");  
     
     return networkSystemPower
-  */
-
-
-	//solar and battery connected, boolean vars t/f
-	boolean solar_connect = digitalRead(POWER_SENSOR_PIN0);
-    if (solar_connect == true ){
-    	total_solar = total_solar + 1;
-    	//lcd.print("Solar Panel Connected")
-
-    }
-
-    boolean battery_connect = digitalRead(POWER_SENSOR_PIN1);
-    if (battery_connect == true ){
-    	total_batteries = total_batteries + 1;
-    	//lcd.print("Battery Connected")
-    }
-    	
+  */	
     	
 
 }
+
+//write the code for the power sensor so it can monitor power used from the battery and power used in the local outlets
 
 void homePower(String userType) {
   if(userType == "producer"){
