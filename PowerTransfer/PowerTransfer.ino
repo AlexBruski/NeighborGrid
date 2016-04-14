@@ -1,3 +1,10 @@
+//Constants for multiple power sensor inputs
+const int SENSE_PIN0 = P1_5; 
+const int SENSE_PIN1 = P1_6;
+const int SENSE_PIN2 = P1_7;
+
+boolean userWant;
+
 void setup()
 {
   // put your setup code here, to run once:
@@ -6,7 +13,10 @@ void setup()
 
 void loop()
 {
-  PowerTransfer();
+  userWant = "true";
+  if(userWant){
+    PowerTransfer();
+  }
   
 }
 
@@ -15,6 +25,10 @@ void PowerTransfer (int power,int user) {
   power will be transfered and the user it will be transfered to.
   Should then also recalculate how much power is available in the system
   */
+  
+  /* for acceptance test */
+  userWant = "true";
+ if( 
 }
 
 int PurchasePower(int credit){
