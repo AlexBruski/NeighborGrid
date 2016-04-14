@@ -42,11 +42,8 @@ int houseID() {
 
 // algorithm to determine the pricing of power in the network
 int powerPrice(){
-    //get value from sensor  
+    //get value from sensors from the two houses that are producing  
     sensorValue = analogRead(POWER_SENSOR_PIN);
-    lcd.setCursor(0,0);
-    lcd.clear();
-    lcd.setCursor(0, 0);
     
     //calibrate current value
     sensorValue = (sensorValue * voltageRef) / (1023);
